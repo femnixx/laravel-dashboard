@@ -10,6 +10,6 @@ Route::get('/', function () {
 Route::post('/post-user', [UserController::class, 'create']);
 
 Route::get('/login', function () {
-    // vue pag
+    // vue pae
 });
 
