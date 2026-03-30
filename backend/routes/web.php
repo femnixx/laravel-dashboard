@@ -7,6 +7,3 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::post('/post-user', [UserController::class, 'create']);
-
-Route::patch('/update-user/{id}', [UserController::class, 'update']);
