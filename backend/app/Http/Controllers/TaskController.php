@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Tasks;
-use App\Services\TaskService;
+use App\Http\Services\TaskService;
 use Illuminate\Http\Request;
 use Throwable;
 
@@ -79,9 +79,11 @@ class TaskController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Tasks $tasks)
+    public function destroy(Tasks $task)
     {
-        $tasks->delete();
-        return response()->noContent();
+        $task->delete();
+        return response()->json([
+            'message' => 'Sucessfully Delete Task',
+        ]);
     }
 }
