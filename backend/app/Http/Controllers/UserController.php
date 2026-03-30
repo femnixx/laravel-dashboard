@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -13,9 +12,11 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $user = $request->user();
+
+        return $user;
     }
 
     /**
@@ -32,13 +33,13 @@ class UserController extends Controller
     public function store(Request $request)
     {
          $validated = $request->validate([
-        'name' => 'required|string|max:255',
+        'username' => 'required|string|max:255',
         'email' => 'required|string|max:255|unique:users',
         'password' => 'required|string|min:8',
     ]);
 
     $user = User::create([
-        'name' => $validated['name'],
+        'username' => $validated['username'],
         'email' => $validated['email'],
         'password' => Hash::make($validated['password']),
     ]);
@@ -69,12 +70,13 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
-        $user = User::findOrFail($id);
+ 
+    $user = $request->user();
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
             'email' => [
                 'required',
                 'email',
@@ -85,7 +87,7 @@ class UserController extends Controller
         $user->update($validated);
 
         return response()->json([
-            'status' => 'success',  
+            'success' => 'true',  
             'message' => 'User updated successfully',
             'data' => $user
         ], 200);
