@@ -40,7 +40,11 @@ class UserController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        return redirect()->route('/login')->with('success', 'User created successfully');
+    return response()->json([
+        'success' => 'true',
+        'message' => 'registed user successfully',
+        'data' => $user
+    ], 201);
     }
 
     /**
@@ -77,7 +81,11 @@ class UserController extends Controller
 
         $user->update($validated);
 
-        return back()->with('success', 'Profile updated');
+        return response()->json([
+            'status' => 'success',  
+            'message' => 'User updated successfully',
+            'data' => $user
+        ], 200);
     }
 
     /**
