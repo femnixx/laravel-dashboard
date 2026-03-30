@@ -10,4 +10,5 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     // orang terakhir yang baca tolong hapus comment ini, yang udah baca:
     // 1. Tristan
     Route::apiResource('users', UserController::class)->only(['destroy']);
+    Route::apiResource('tasks', UserController::class)->only(['store, destroy, index']);
 });
