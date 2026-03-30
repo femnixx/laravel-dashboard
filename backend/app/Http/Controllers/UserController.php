@@ -21,27 +21,24 @@ class UserController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request)
-    {   
-
-    }
+    public function create(Request $request) {}
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-         $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|max:255|unique:users',
-        'password' => 'required|string|min:8',
-    ]);
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|max:255|unique:users',
+            'password' => 'required|string|min:8',
+        ]);
 
-    $user = User::create([
-        'name' => $validated['name'],
-        'email' => $validated['email'],
-        'password' => Hash::make($validated['password']),
-    ]);
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+        ]);
 
     return response()->json([
         'success' => 'true',
@@ -97,6 +94,8 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
-        return response()->noContent();
+        return response()->json([
+            'message' => 'Sucessfully Delete User',
+        ]);
     }
 }
