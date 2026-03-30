@@ -9,7 +9,4 @@ Route::get('/', function () {
 
 Route::post('/post-user', [UserController::class, 'create']);
 
-Route::get('/login', function () {
-    // vue pae
-});
-
+Route::patch('/update-user/{id}', [UserController::class, 'update']);
