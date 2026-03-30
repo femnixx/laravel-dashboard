@@ -2,16 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Resources\TaskResource;
+use App\Models\Tasks;
+use App\Http\Services\TaskService;
 use Illuminate\Http\Request;
+use Throwable;
 
 class TaskController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = $request->user()->tasks()->with('user');
+
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        $tasks = $query->latest()->paginate(15);
+
+        return TaskResource::collection($tasks);
     }
 
     /**
@@ -25,9 +42,14 @@ class TaskController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreTaskRequest $request, TaskService $taskService)
     {
-        //
+        try {
+            $task = $taskService->createTask($request->user(), $request->validated());
+            return new TaskResource($task);
+        } catch (Throwable $e) {
+            throw $e;
+        }
     }
 
     /**
@@ -57,8 +79,11 @@ class TaskController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Tasks $task)
     {
-        //
+        $task->delete();
+        return response()->json([
+            'message' => 'Sucessfully Delete Task',
+        ]);
     }
 }
