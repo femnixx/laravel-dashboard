@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -13,4 +14,6 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     Route::apiResource('tasks', UserController::class)->only(['store, destroy, index']);
     Route::patch('/update-user/{id}', [UserController::class, 'update']);
 });
-Route::post('/post-user', [UserController::class, 'create']);
+
+Route::post('/register', [UserController::class, 'create']);
+Route::post('/login', [AuthController::class, 'login']);

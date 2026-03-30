@@ -42,7 +42,7 @@ class UserController extends Controller
 
     return response()->json([
         'success' => 'true',
-        'message' => 'registed user successfully',
+        'message' => 'Registered user successfully',
         'data' => $user
     ], 201);
     }
