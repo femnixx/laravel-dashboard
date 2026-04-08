@@ -2,72 +2,106 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreTaskRequest;
+use App\Http\Resources\TaskResource;
+use App\Models\Tasks;
+use App\Http\Services\TaskService;
 use Illuminate\Http\Request;
-use App\Models\Task;
-use Illuminate\Support\Facades\Auth;
+use Throwable;
 
 class TaskController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        $query = $request->user()->tasks()->with('user');
+
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        $tasks = $query->latest()->paginate(15);
+
+        return TaskResource::collection($tasks);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreTaskRequest $request, TaskService $taskService)
+    {
+        try {
+            $task = $taskService->createTask($request->user(), $request->validated());
+            return new TaskResource($task);
+        } catch (Throwable $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        //
+    }
+
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
     {
-        // 1. Validate input
+        //Need to be checked again
+        $task = Tasks::findorFail($id);
+
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
+            'title' => 'string|max:255',
+            'description' => [
+                'required',
+                //This is not finished
+            ],
         ]);
 
-        // 2. Process via your private check method
-        $task = $this->check($id, $validated['title'], $validated['description']);
-
-        if (!$task) {
-            return response()->json(['message' => 'Task not found or unauthorized'], 404);
-        }
+        //Review below
+        $task->update($validated);
 
         return response()->json([
-            'message' => 'Task updated successfully',
+            'status' => 'success',  
+            'message' => 'User updated successfully',
             'data' => $task
-        ]);
-    }
-
-    /**
-     * Find, Verify Owner, and Update
-     */
-    private function check(string $id, string $title, string $description) 
-    {
-        // We use the 'users_id' column from your ERD to ensure ownership
-        $task = Task::where('id', $id)
-                    ->where('users_id', Auth::id()) 
-                    ->first();
-
-        if ($task) {
-            $task->update([
-                'title' => $title,
-                'description' => $description,
-            ]);
-            return $task;
-        }
-
-        return null;
+        ], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Tasks $task)
     {
-        $task = Task::where('id', $id)
-                    ->where('users_id', Auth::id())
-                    ->first();
-
-        if (!$task) {
-            return response()->json(['message' => 'Task not found or unauthorized'], 404);
-        }
-
         $task->delete();
-
-        return response()->json(['message' => 'Task deleted successfully']);
+        return response()->json([
+            'message' => 'Sucessfully Delete Task',
+        ]);
     }
 }
