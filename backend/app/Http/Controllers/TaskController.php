@@ -71,28 +71,31 @@ class TaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Tasks $task)
     {
-        //Need to be checked again
-        $task = Tasks::findorFail($id);
-
+        //Check again
         $validated = $request->validate([
-            'title' => 'string|max:255',
-            'description' => [
-                'required',
-                //This is not finished
-            ],
+            'title'       => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|required|string',
+            'status'      => 'sometimes|required|string', // Matches TEXT type in your diagram
         ]);
 
-        //Review below
-        $task->update($validated);
+        try {
+            $task->update($validated);
 
-        return response()->json([
-            'status' => 'success',  
-            'message' => 'User updated successfully',
-            'data' => $task
-        ], 200);
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Task updated successfully',
+                'data'    => new TaskResource($task)
+            ], 200);
+
+            } catch (Throwable $e) {
+            return response()->json([
+                'error' => 'Update failed'], 500
+                );
+        }
     }
+
 
     /**
      * Remove the specified resource from storage.
