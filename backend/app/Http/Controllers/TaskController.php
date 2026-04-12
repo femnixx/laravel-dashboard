@@ -77,7 +77,7 @@ class TaskController extends Controller
         $validated = $request->validate([
             'title'       => 'sometimes|required|string|max:255',
             'description' => 'sometimes|required|string',
-            'status'      => 'sometimes|required|string', // Matches TEXT type in your diagram
+            'status'      => 'sometimes|required|string', 
         ]);
 
         try {
