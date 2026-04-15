@@ -3,9 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Tasks extends Model
 {
-    // Match these to your ERD exactly
-    protected $fillable = ['users_id', 'title', 'description', 'status'];
+    protected $fillable = [
+        'user_id',
+        'title',
+        'description',
+        'status',
+    ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 }
