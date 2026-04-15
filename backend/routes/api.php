@@ -17,4 +17,8 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
 
 Route::post('/register', [UserController::class, 'store']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+Route::apiResource('tasks', TaskController::class);
 
