@@ -74,6 +74,13 @@ class TaskController extends Controller
     public function update(Request $request, Tasks $task)
     {
         //Check again
+        if ($task->users_id !== auth()->id()) {
+        return response()->json([
+            'status'  => 'error',
+            'message' => 'Forbidden: You do not own this task.'
+        ], 403);
+        }
+
         $validated = $request->validate([
             'title'       => 'sometimes|required|string|max:255',
             'description' => 'sometimes|required|string',
@@ -91,8 +98,10 @@ class TaskController extends Controller
 
             } catch (Throwable $e) {
             return response()->json([
-                'error' => 'Update failed'], 500
-                );
+                'status'  => 'error',
+                'message' => 'Update failed',
+                'debug'   => $e->getMessage()
+            ], 500);
         }
     }
 
