@@ -7,6 +7,7 @@ use App\Http\Resources\TaskResource;
 use App\Models\Tasks;
 use App\Http\Services\TaskService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Throwable;
 
 class TaskController extends Controller
@@ -73,11 +74,17 @@ class TaskController extends Controller
      */
     public function update(Request $request, Tasks $task)
     {
-        //Check again
+        if ($task->users_id !== Auth::id()) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Forbidden: You do not own this task.'
+            ], 403);
+        }
+
         $validated = $request->validate([
             'title'       => 'sometimes|required|string|max:255',
             'description' => 'sometimes|required|string',
-            'status'      => 'sometimes|required|string', 
+            'status'      => 'sometimes|required|string',
         ]);
 
         try {
@@ -88,11 +95,12 @@ class TaskController extends Controller
                 'message' => 'Task updated successfully',
                 'data'    => new TaskResource($task)
             ], 200);
-
-            } catch (Throwable $e) {
+        } catch (Throwable $e) {
             return response()->json([
-                'error' => 'Update failed'], 500
-                );
+                'status'  => 'error',
+                'message' => 'Update failed',
+                'debug'   => config('app.debug') ? $e->getMessage() : null
+            ], 500);
         }
     }
 
@@ -108,3 +116,4 @@ class TaskController extends Controller
         ]);
     }
 }
+
