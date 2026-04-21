@@ -7,6 +7,7 @@ use App\Http\Resources\TaskResource;
 use App\Models\Tasks;
 use App\Http\Services\TaskService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Throwable;
 
 class TaskController extends Controller
@@ -73,39 +74,35 @@ class TaskController extends Controller
      */
     public function update(Request $request, Tasks $task)
     {
-        //Check again
-    public function update(Request $request, Tasks $task)
-    {
-        if ($task->users_id !== auth()->id()) {
-           return response()->json([
-               'status'  => 'error',
+        if ($task->users_id !== Auth::id()) {
+            return response()->json([
+                'status'  => 'error',
                 'message' => 'Forbidden: You do not own this task.'
             ], 403);
-       }
+        }
 
-       $validated = $request->validate([
-           'title'       => 'sometimes|required|string|max:255',
-           'description' => 'sometimes|required|string',
-           'status'      => 'sometimes|required|string', 
-       ]);
+        $validated = $request->validate([
+            'title'       => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|required|string',
+            'status'      => 'sometimes|required|string',
+        ]);
 
         try {
-           $task->update($validated);
+            $task->update($validated);
 
-           return response()->json([
-               'status'  => 'success',
-               'message' => 'Task updated successfully',
-               'data'    => new TaskResource($task)
-           ], 200);
-
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Task updated successfully',
+                'data'    => new TaskResource($task)
+            ], 200);
         } catch (Throwable $e) {
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Update failed',
-                'debug'   => config('app.debug') ? $e->getMessage() : null 
-           ], 500);
+                'debug'   => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
     }
-}
 
 
     /**
@@ -119,3 +116,4 @@ class TaskController extends Controller
         ]);
     }
 }
+

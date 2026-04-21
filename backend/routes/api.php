@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
-    Route::get('tasks/get', [TaskController::class, 'index']);           
-    Route::post('tasks/create', [TaskController::class, 'store']);       
-    Route::patch('tasks/update/{task}', [TaskController::class, 'update']);  
-    Route::delete('tasks/delete/{task}', [TaskController::class, 'destroy']); 
+    Route::get('tasks/get', [TaskController::class, 'index']);
+    Route::post('tasks/create', [TaskController::class, 'store']);
+    Route::patch('tasks/update/{task}', [TaskController::class, 'update']);
+    Route::delete('tasks/delete/{task}', [TaskController::class, 'destroy']);
 
     Route::get('users/me', [UserController::class, 'index']);
     Route::delete('users/delete/{user}', [UserController::class, 'destroy']);
@@ -19,7 +19,3 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
 
 Route::post('/register', [UserController::class, 'store']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-
