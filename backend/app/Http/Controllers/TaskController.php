@@ -7,6 +7,7 @@ use App\Http\Resources\TaskResource;
 use App\Models\Tasks;
 use App\Http\Services\TaskService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Throwable;
 
 class TaskController extends Controller
@@ -32,14 +33,6 @@ class TaskController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreTaskRequest $request, TaskService $taskService)
@@ -61,20 +54,40 @@ class TaskController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Tasks $task)
     {
-        //
+        if ($task->users_id !== Auth::id()) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Forbidden: You do not own this task.'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'title'       => 'sometimes|required|string|max:255',
+            'description' => 'sometimes|required|string',
+            'status'      => 'sometimes|required|string',
+        ]);
+
+        try {
+            $task->update($validated);
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Task updated successfully',
+                'data'    => new TaskResource($task)
+            ], 200);
+        } catch (Throwable $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Update failed',
+                'debug'   => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -87,3 +100,4 @@ class TaskController extends Controller
         ]);
     }
 }
+
